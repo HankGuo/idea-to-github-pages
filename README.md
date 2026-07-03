@@ -98,6 +98,18 @@ idea-to-github-pages/
 
 ## 作者
 
-HANK · 五花肉 · 公众号「算力白肉」
+HANK · 五花样 · 公众号「算力白肉」
 
 如有问题或建议，欢迎提 Issue。
+
+---
+
+## ☕ Buy Me a Coffee
+
+开源不等于免费劳动。如果你觉得这个 Skill 省了你的时间，或者用着顺手，可以请作者喝杯咖啡。
+
+不强求，不卑微，纯自愿。能喝到是缘分，喝不到也正常——反正代码已经写完了 😄
+
+<p align="center">
+  <img src="buy-me-a-coffee.jpg" width="280" alt="微信打赏" />
+</p>
