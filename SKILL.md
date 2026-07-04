@@ -1,236 +1,346 @@
 ---
 name: idea-to-github-pages
 description: |
-  端到端「想法→网页→上线」流水线。用户用自然语言描述一个想法（产品介绍页、个人主页、活动页面、作品展示等），Skill 自动拆解需求、调用 design-taste-frontend 设计前端、生成 SVG 图形、产出完整 HTML+CSS+JS，然后通过 GitHub CLI 部署到 GitHub Pages 并返回最终网址。
-  触发词：帮我做一个网页、上线一个页面、部署到 GitHub Pages、把这个做成网站、做产品介绍页、做个人主页、build and deploy。
+  零基础→网页→链接。用户说「帮我做个网页」，Agent 像朋友聊天一样问几个问题，自动生成页面，自动在浏览器预览，自动变成别人能点开的链接。用户全程只需要打字回答+在浏览器点确认。不需要任何技术知识。
+  触发词：帮我做一个网页、帮我做个页面、帮我做个网站、帮我搞个主页。
   agent_created: true
 ---
 
-# Idea to GitHub Pages — 从想法到上线
+# Idea to GitHub Pages — 零基础到链接
 
-## 概述
+## 核心原则
 
-用户说「帮我做一个 XX 页面」，从需求拆解到 GitHub Pages 上线全自动流水线。四个工具全部用上：
+用户只会用浏览器和微信。他不知道什么是代码、终端、命令行。
 
-- **Markdown** — 输出需求文档，用户确认方向
-- **design-taste-frontend** — 设计前端（配色/排版/布局/动效）
-- **SVG** — 生成图表、插图、装饰元素
-- **HTML + CSS + JS** — 产出完整可部署的静态页面
-- **GitHub CLI** — 自动创建仓库、推送代码、开启 Pages
+**你的工作：** 所有技术操作在后台自动完成。用户只需要做三件事：打字回答你、在浏览器里点「授权」、点开你给的链接。
 
----
+**禁止对用户说这些词：** GitHub、终端、命令行、仓库、部署、提交、推送、CLI、token、Pages、git、npm、brew。
 
-## 阶段 0：判断是否适用此 Skill
-
-**适用场景**：单页或少量页面的静态展示页。如产品介绍页、个人主页、活动 landing page、作品展示页、简历页、团队介绍页。
-
-**不适用场景**：需要后端/数据库的页面、需要登录认证的页面、多页复杂应用、React/Next.js 项目（这些不适合直接 GitHub Pages 部署）。
+**应该说：** 「变成链接」「在浏览器里确认一下」「给链接起个名」「搞定，发给大家就行」。
 
 ---
 
-## 阶段 1：需求拆解
+## 触发条件
 
-### 1.1 理解用户意图
+优先匹配：`帮我做一个网页` `帮我做个页面` `帮我做个网站` `帮我搞个主页`。
 
-从用户描述中提取关键信息：
-- **页面类型**：产品介绍 / 个人主页 / 活动页 / 作品集 / 其他
-- **目标受众**：谁在看这个页面？B2B 客户 / 消费者 / 招聘者 / 社群成员？
-- **核心信息**：用户想让受众知道什么？做什么？
-- **风格偏好**：用户有没有提到「简约」「科技感」「温暖」「专业」等风格词？
-- **内容素材**：用户是否提供了 logo、图片、文案？
+也匹配包含「做」+「页面/网页/网站/主页」+「部署/发布/上线/链接」的组合描述。
 
-### 1.2 追问（最多 3 个问题，逐个问）
+---
 
-如果信息不足，逐个追问。不要一次扔一堆问题。
+## 前置声明
 
-优先追问顺序：
-1. **页面用途不清时**：「这个页面主要给谁看？想让他们看完之后做什么？」
-2. **风格不清时**：「偏好简约干净的，还是更有视觉冲击力的？」
-3. **内容缺失时**：「有现成的 logo 或品牌色吗？有的话发给我」
+本 Skill 的设计规则融合了以下开源项目的精华：
 
-### 1.3 输出需求文档
+- **design-taste-frontend** — 反 AI 模板化前端设计
+- **taste-design** — Google Stitch 语义化设计系统
+- **frontend-design** — 大胆美学方向指引
+- **ui-ux-pro-max** — 风格/配色/字体设计数据库
 
-确认理解后，用 **Markdown 格式**输出需求文档，包含：
+感谢这些项目的作者对开源设计的贡献。
 
-```markdown
-# <页面名称> — 需求文档
+---
 
-## 基本信息
-- 页面类型：
-- 目标受众：
-- 核心目标：
+## 阶段 1：聊天式需求引导
 
-## 页面结构
-1. 封面/首屏 — <标题> + <副标题>
-2. <section 2>
-3. <section 3>
-...
+一次一个问题。用大白话。
 
-## 设计方向
-- 风格：
-- 主色调：
-- 参考：
+### Q1 — 做什么
 
-## 内容清单
-- 文案：
-- 图片：
-- logo：
-- 其他素材：
+「你想做一个什么样的页面？比如介绍你的店、介绍你自己、展示你的作品——或者你直接说想法就行。」
+
+### Q2 — 给谁看
+
+「这个页面主要给谁看？客人？朋友？还是随便看看的陌生人？」
+
+### Q3 — 他们看完做什么
+
+「你希望看完的人做什么？加你微信？打电话？记住你的名字？」
+
+### Q4 — 喜欢什么感觉
+
+「你希望页面给人的感觉是什么样的？
+
+- **暖色的**，像咖啡馆花店那种温暖的
+- **清爽的**，白底干干净净像杂志
+- **深色的**，黑底白字酷酷的
+- **活泼的**，颜色鲜艳有活力
+
+或者直接说你喜欢的感觉。」
+
+### Q5 — 手机还是电脑
+
+「主要是在手机上给别人看，还是电脑上？」
+
+### Q6 — 有现成的图吗
+
+「你有现成的照片、logo、或者写好的文字吗？有的话发给我，没有我帮你编。」
+
+### 确认
+
+「好的，我确认一下：你想做一个 [XX] 的页面，给 [XX] 看，风格想要 [XX]，主要是 [手机/电脑] 上看，[有/没有现成的图和字]。对吗？」
+
+---
+
+## 阶段 2：结构确认
+
+用大白话给用户看页面结构：
+
 ```
+你的页面大概长这样（从上到下）：
 
-输出后等待用户确认或修改，确认后进入设计阶段。
+最上面 — 店名 / 名字 + 一句话介绍
+中间 — 你的服务或特点（3-4 条）
+下面 — 详细介绍
+最下面 — 联系方式
 
----
-
-## 阶段 2：前端设计
-
-### 2.1 尝试加载 design-taste-frontend
-
-先尝试调用 `design-taste-frontend` Skill。
-
-**如果加载成功**：将其设计决策映射到本项目的 Design Read / Dials / 配色 / 字体 / 布局方案。**只取设计决策层**，不取 React 组件代码。
-
-**如果加载失败**（用户未安装该 Skill）：直接使用内置设计规则 `references/design-rules.md`。读取该文件，按同样的流程产出 Design Read → Dials → 配色 → 字体 → 布局方案。
-
-两种路径产出的设计文档格式完全相同。
-
-### 2.2 设计产出物格式
-
-```markdown
-## 设计决策
-
-**Design Read**：<一句话>（来源：design-taste-frontend 或 references/design-rules.md）
-
-**三档位**：
-- VARIANCE: <1-10>
-- MOTION_INTENSITY: <1-10>
-- VISUAL_DENSITY: <1-10>
-
-**配色**：
-- 主色: #XXXXXX
-- 辅色: #XXXXXX
-- 背景: #XXXXXX
-- 文字: #XXXXXX
-- 强调文字: #XXXXXX
-
-**字体**：
-- 标题: <font-family>
-- 正文: <font-family>
-
-**布局方案**：
-- Hero: <方案名>
-- 各 Section 布局描述
+可以吗？想加什么或删什么直接说。
 ```
 
 ---
 
-## 阶段 3：SVG 生成
+## 阶段 3：设计确认
 
-根据页面需要生成 SVG 图形。常见场景：
-- **插图/装饰**：Hero 区域的抽象图形、背景纹理
-- **图标**：优先使用图标库（Phosphor / Tabler 的内联 SVG），需要自定义图形时才手写 SVG
-- **数据图表**：柱状图、折线图、流程图
-- **logo 占位**：如果用户没有 logo，生成一个简洁的文字标
+后台用 `design-taste-frontend` Skill 或 `references/design-rules.md` 做设计决策，然后翻译成大白话给用户确认：
 
-SVG 要求：
-- 直接内联在 HTML 中，不单独引用外部文件
-- `viewBox` 正确设置
-- 颜色使用 CSS 变量或硬编码在 SVG 内部（后期可改）
+「我帮你选了一种感觉：
 
----
+- 底色：奶油白
+- 重点地方：暖橘色
+- 字体：清晰好读
 
-## 阶段 4：HTML 生成
-
-### 4.1 输出结构
-
-生成以下文件：
-- `index.html` — 主页面，包含所有内容、内联 SVG
-- `styles.css` — 样式文件
-- `app.js` — 交互逻辑（如有翻页、动画等）
-
-如果页面是单页无复杂交互，可以将 CSS 内联在 `<style>` 标签中。
-
-### 4.2 HTML 规范
-
-- 使用语义化标签（`<header>`, `<section>`, `<footer>`）
-- 所有样式集中管理，使用 CSS 变量定义配色和排版
-- 响应式设计：至少覆盖手机（<768px）和桌面（>1024px）
-- 图片使用占位符或用户提供的 URL
-- **不收**纯文本占位——如果用户没给图，用 SVG 图形代替，不写 `<div>` 模拟图片
-- 字体使用系统字体栈或 Google Fonts，不使用需要 npm 安装的字体包
-
-### 4.3 CSS 变量规范
-
-```css
-:root {
-  --primary: #XXXXXX;
-  --secondary: #XXXXXX;
-  --bg: #XXXXXX;
-  --text: #XXXXXX;
-  --text-muted: #XXXXXX;
-  --sans: "...", system-ui, sans-serif;
-  --mono: "...", monospace;
-}
-```
-
-### 4.4 动效规范
-
-- 仅使用 CSS transition/animation 或 vanilla JS
-- **不使用** React/Motion/GSAP 等框架（目标输出是静态 HTML）
-- 动效必须符合 `prefers-reduced-motion` 媒体查询
-- 动效强度对应 MOTION_INTENSITY dial
+你看看可以吗？想换就告诉我。」
 
 ---
 
-## 阶段 5：GitHub Pages 部署
+## 阶段 4：生成页面
 
-### 5.1 收集 GitHub 信息
+生成 `index.html` + `styles.css` + `app.js`（如需）。
 
-按顺序确认：
+内联 SVG 做装饰和图标。CSS 变量统一配色。响应式适配。字体用系统字体栈或 Google Fonts CDN。动效仅 CSS。
 
-1. **GitHub 用户名**：先尝试 `gh auth status` 获取已登录用户。如果未登录 → 引导用户执行 `gh auth login`
-2. **仓库名**：建议 `<project-slug>` 或 `<project-slug>-pages`。如果用户已有仓库 → 使用现有仓库。如果没有 → 创建新仓库。确认仓库**公开**（Pages 免费方案要求）
-3. **确认推送**：告知用户将要推送的文件列表，确认后执行
+---
 
-### 5.2 执行部署
+## 阶段 5：自动预览
 
-详细步骤见 `references/github-pages-deploy.md`。
+生成后，**不要让用户手动打开文件**。自动在浏览器打开页面：
 
-核心命令序列：
+**方式一：HTTP 服务器**（macOS / Linux 通常自带 python3）
+
 ```bash
-# 1. 确保 gh 已登录
-gh auth status
+cd <project-dir>
+python3 -m http.server 8080 &
+sleep 1
+# macOS
+open http://localhost:8080 2>/dev/null
+# Linux
+xdg-open http://localhost:8080 2>/dev/null
+# Windows (git bash / WSL)
+start http://localhost:8080 2>/dev/null
+```
 
-# 2. 创建仓库并推送（如果没有仓库）
+**方式二：直接打开 HTML 文件**（没有 python3 时的备选）
+
+```bash
+# macOS
+open <project-dir>/index.html
+# Linux
+xdg-open <project-dir>/index.html
+# Windows
+start <project-dir>/index.html
+```
+
+**方式三：用 Node.js**（如果 Node.js 可用）
+
+```bash
+npx serve <project-dir> -p 8080 &
+sleep 1
+open http://localhost:8080
+```
+
+按优先级尝试，哪个能跑用哪个。
+
+告诉用户：「页面写好了，你的浏览器应该已经打开了。看看颜色、排版、内容——哪里要改直接告诉我。」
+
+如果用户说没看到，换端口重试或换方式。反复改到用户满意。
+
+---
+
+## 阶段 6：变成链接
+
+**以下全部在后台自动完成。不对用户提任何技术词汇。**
+
+### 6.1 安装必需工具（自动）
+
+**检查 git：**
+```bash
+which git
+```
+未安装时：
+- macOS：`xcode-select --install 2>/dev/null` 或 git 随 Xcode CLI 自动安装
+- Windows：`winget install Git.Git`
+- Linux：`sudo apt install git -y` 或 `sudo dnf install git -y`
+
+**检查 gh CLI：**
+
+```bash
+which gh
+```
+
+如果已安装 → 跳过。
+
+如果未安装 → **根据操作系统自动选择安装方式**：
+
+**macOS:**
+```bash
+# 尝试 1: brew (如果装了的话很快)
+if brew install gh 2>/dev/null; then
+  echo "gh installed via brew"
+# 尝试 2: 下载官方 pkg 安装包
+else
+  curl -fsSL https://cli.github.com/packages/mac/gh_latest_macOS_amd64.pkg -o /tmp/gh.pkg
+  sudo installer -pkg /tmp/gh.pkg -target /
+fi
+```
+如果 sudo 需要密码 → 告诉用户：「我需要装一个小工具，系统会弹出一个密码框，输入你电脑的开机密码就行。我帮你打开下载页面。」然后用 `open https://github.com/cli/cli/releases/latest` 让用户自己下载安装包双击安装。
+
+**Windows:**
+```powershell
+winget install --id GitHub.cli
+```
+如果 winget 不可用 → 「帮我打开这个下载页面：https://github.com/cli/cli/releases/latest 你下载 Windows 版，双击安装就行。装好告诉我。」
+
+**Linux (Debian/Ubuntu):**
+```bash
+(type -p wget >/dev/null || sudo apt-get install wget -y) \
+&& sudo mkdir -p -m 755 /etc/apt/keyrings \
+&& wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+&& sudo apt update \
+&& sudo apt install gh -y
+```
+
+**Linux (Fedora/RHEL):**
+```bash
+sudo dnf install gh -y
+```
+
+如果自动安装失败 → **引导用户到官网下载页**：用 `open` / `start` / `xdg-open` 打开 `https://github.com/cli/cli/releases/latest`，告诉用户：「我需要装一个小工具，帮你打开了下载页面——选你电脑对应的版本下载安装就行。装好之后告诉我。」
+
+### 6.2 检查登录
+
+```bash
+gh auth status 2>&1
+```
+
+已登录 → 跳过。
+
+未登录 → **用浏览器 OAuth，不需要用户碰终端：**
+
+```
+我需要你在浏览器里确认一下身份，我帮你打开网页。
+```
+
+然后执行：
+```bash
+gh auth login --web --hostname github.com
+```
+这会自动打开浏览器。用户只需在浏览器里点「Authorize」。之后检查 `gh auth status` 确认登录成功。
+
+**如果浏览器 OAuth 失败**（比如在无桌面环境）：降级为 token 模式。引导用户：
+
+1. 用 `open https://github.com/settings/tokens/new?scopes=repo&description=Page+Deploy` 打开 token 创建页面
+2. 告诉用户：「帮你在浏览器里打开了页面。点最下面的『Generate token』，把生成的那串字符复制发给我就行。」
+3. 拿到 token 后回传：`echo "<token>" | gh auth login --with-token`
+
+### 6.3 获取 GitHub 用户名
+
+```bash
+gh api user --jq '.login'
+```
+
+### 6.4 给链接起名
+
+「给你的链接起个简单的英文名？比如你的店叫『阳光花坊』，英文就叫 `sunny-flowers`。这个会出现在最终链接里。」
+
+### 6.5 后台执行（全自动）
+
+```bash
+git init
+git add .
+git commit -m "Initial page"
+
 gh repo create <repo-name> --public --source=. --remote=origin --push
 
-# 3. 如果已有仓库，直接推送
-git add . && git commit -m "Deploy from idea-to-github-pages" && git push
-
-# 4. 开启 GitHub Pages
 gh api repos/<username>/<repo-name>/pages -X POST \
   -f "source[branch]=main" -f "source[path]=/"
-
-# 5. 检查部署状态
-gh api repos/<username>/<repo-name>/pages
 ```
 
-### 5.3 返回结果
+如果 `gh repo create --push` 失败（如已有 remote）：
+```bash
+git remote add origin https://github.com/<username>/<repo-name>.git 2>/dev/null
+git remote set-url origin https://github.com/<username>/<repo-name>.git
+git branch -M main
+git push -u origin main
+```
 
-部署成功后返回：
-- **GitHub Pages URL**：`https://<username>.github.io/<repo-name>/`
-- **仓库地址**：`https://github.com/<username>/<repo-name>`
-- **备用说明**：如果 `gh api` 开启 Pages 失败，给出手动开启的步骤链接
+### 6.6 等待部署
+
+```bash
+# 轮询检查，最多等 3 分钟
+for i in $(seq 1 18); do
+  status=$(gh api repos/<username>/<repo-name>/pages --jq '.status' 2>/dev/null)
+  if [ "$status" = "built" ]; then break; fi
+  sleep 10
+done
+```
+
+### 6.7 告诉用户
+
+「好了！你的页面可以看了，把这个链接发给大家就行：
+
+**https://[用户名].github.io/[仓库名]/**
+
+刚发可能要等一两分钟才能打开。以后想改内容，直接跟我说就行。」
 
 ---
 
-## 阶段 6：收尾
+## 阶段 7：后续修改
 
-在项目目录下新建 `.workbuddy/memory/` 记录本次部署信息（仓库名、URL、创建时间），方便后续维护。
+「以后想改内容的话，直接跟我说『帮我把那页的 XX 改成 XX』，我帮你更新，链接不变。」
 
 ---
 
-## 参考资源
+## 故障处理
 
-- `references/design-rules.md` — 前端设计规则（design-taste-frontend 精简版，作为 Skill 不可用时的 fallback）
-- `references/github-pages-deploy.md` — GitHub Pages 部署详细步骤、故障排查
+### 自动安装 gh 失败
+
+不要放弃。降级为引导用户手动安装：
+
+「我需要装一个小工具，帮你打开了下载页面。选你电脑的版本，下载安装就行——跟装普通软件一样。装好之后告诉我。」
+
+用 `open https://cli.github.com` 打开官网。
+
+### 浏览器 OAuth 登录失败
+
+降级为 token 模式（见 6.2）。
+
+### 链接打不开
+
+后台自动重试部署状态检查。不要跟用户说「你检查一下 GitHub Pages 设置」——自己去检查。如果确实有问题，后台修复。
+
+### 网络超时
+
+国内用户可能连不上 GitHub。检查 `curl --connect-timeout 5 https://github.com`。如果超时，检查是否有代理。不要跟用户提「代理」「翻墙」等词——直接说「网络不太稳定，等一会儿我再试。」
+
+---
+
+## 文件结构
+
+```
+idea-to-github-pages/
+├── SKILL.md
+└── references/
+    ├── design-rules.md
+    └── github-pages-deploy.md
+```
