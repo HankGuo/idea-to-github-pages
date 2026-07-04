@@ -123,46 +123,58 @@ description: |
 
 ## 阶段 5：自动预览
 
-生成后，**不要让用户手动打开文件**。自动在浏览器打开页面：
+### 关键规则
 
-**方式一：HTTP 服务器**（macOS / Linux 通常自带 python3）
+**绝对不要分开运行 `cd` 和启动服务。** Agent 每次 `Bash()` 是独立的，`cd` 不会传递。所有步骤放在同一条命令里，用 `&&` 或分号连接。
 
-```bash
-cd <project-dir>
-python3 -m http.server 8080 &
-sleep 1
-# macOS
-open http://localhost:8080 2>/dev/null
-# Linux
-xdg-open http://localhost:8080 2>/dev/null
-# Windows (git bash / WSL)
-start http://localhost:8080 2>/dev/null
-```
-
-**方式二：直接打开 HTML 文件**（没有 python3 时的备选）
+### 步骤 1：检测可用的 Web 服务器
 
 ```bash
-# macOS
-open <project-dir>/index.html
-# Linux
-xdg-open <project-dir>/index.html
-# Windows
-start <project-dir>/index.html
+# 检测 python3 能否用
+which python3 && python3 -c "import http.server" 2>/dev/null && echo "PYTHON_OK" || echo "PYTHON_NO"
+
+# 检测 npx 能否用（Node.js 备选）
+which npx 2>/dev/null && echo "NPX_OK" || echo "NPX_NO"
 ```
 
-**方式三：用 Node.js**（如果 Node.js 可用）
+### 步骤 2：启动服务器 + 打开浏览器
+
+**如果 python3 可用**（一条命令，不要拆开）：
 
 ```bash
-npx serve <project-dir> -p 8080 &
-sleep 1
-open http://localhost:8080
+python3 -m http.server 8080 --directory "<project-dir>" 2>&1 &
+sleep 2
+
+# 检测 OS 并用对应方式打开浏览器——同时尝试所有方式
+open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || start http://localhost:8080 2>/dev/null || true
+
+# 确认服务在跑
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 2>/dev/null || echo "SERVICE_DOWN"
 ```
 
-按优先级尝试，哪个能跑用哪个。
+**如果 python3 不可用但 npx 可用：**
 
-告诉用户：「页面写好了，你的浏览器应该已经打开了。看看颜色、排版、内容——哪里要改直接告诉我。」
+```bash
+cd "<project-dir>" && npx --yes serve -p 8080 &
+sleep 3
+open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || start http://localhost:8080 2>/dev/null || true
+```
 
-如果用户说没看到，换端口重试或换方式。反复改到用户满意。
+**两个都不行——直接打开 HTML 文件**（简单但能跑）：
+
+```bash
+open "<project-dir>/index.html" 2>/dev/null || xdg-open "<project-dir>/index.html" 2>/dev/null || start "<project-dir>/index.html" 2>/dev/null || true
+```
+
+### 步骤 3：如果浏览器无论如何都打不开
+
+把 URL 直接发给用户：「浏览器没自动弹出来，你复制这个链接在浏览器里打开看看：**http://localhost:8080**」
+
+### 步骤 4：跟用户确认
+
+「页面写好了，你看看效果——颜色、排版、内容，哪里要改直接告诉我。」
+
+如果用户说没看到，先诊断原因再修，不要盲目换端口。
 
 ---
 
