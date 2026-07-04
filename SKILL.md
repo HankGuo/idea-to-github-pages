@@ -28,16 +28,16 @@ description: |
 
 ---
 
-## 前置声明
+## 设计规则来源
 
-本 Skill 的设计规则融合了以下开源项目的精华：
+本 Skill 优先调用 `design-taste-frontend` 获取设计决策（如该 Skill 已安装）。内置的 `references/design-rules.md` 是一个自包含的设计规则集，编写时参考了以下开源项目的思路：
 
 - **design-taste-frontend** — 反 AI 模板化前端设计
 - **taste-design** — Google Stitch 语义化设计系统
 - **frontend-design** — 大胆美学方向指引
 - **ui-ux-pro-max** — 风格/配色/字体设计数据库
 
-感谢这些项目的作者对开源设计的贡献。
+感谢这些项目的作者。
 
 ---
 
