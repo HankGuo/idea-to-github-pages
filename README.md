@@ -30,12 +30,33 @@
 
 ---
 
+## 效果演示
+
+下面是一个真实的使用案例：用户只用了几句对话，就得到了一个完整的网页和公开链接。
+
+### 对话过程
+
+用户对助手说「帮我做一个网页」，然后像聊天一样回答了几个问题：
+
+![对话截图](assets/prompt-screenshot.png)
+
+### 生成效果
+
+从对话到上线，全程无需写任何代码：
+
+![效果截图](assets/effect-screenshot.png)
+
+---
+
 ## 文件说明
 
 ```
 idea-to-github-pages/
 ├── SKILL.md                    # Skill 主流程
 ├── README.md                   # 本文件
+├── assets/
+│   ├── prompt-screenshot.png   # 对话过程截图（效果演示）
+│   └── effect-screenshot.png   # 生成页面截图（效果演示）
 └── references/
     ├── design-rules.md         # 自包含设计规则集
     └── github-pages-deploy.md  # 部署参考（内部用）
