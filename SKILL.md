@@ -121,68 +121,13 @@ description: |
 
 ---
 
-## 阶段 5：自动预览
+## 阶段 5：变成链接
 
-### 关键规则
-
-**绝对不要分开运行 `cd` 和启动服务。** Agent 每次 `Bash()` 是独立的，`cd` 不会传递。所有步骤放在同一条命令里，用 `&&` 或分号连接。
-
-### 步骤 1：检测可用的 Web 服务器
-
-```bash
-# 检测 python3 能否用
-which python3 && python3 -c "import http.server" 2>/dev/null && echo "PYTHON_OK" || echo "PYTHON_NO"
-
-# 检测 npx 能否用（Node.js 备选）
-which npx 2>/dev/null && echo "NPX_OK" || echo "NPX_NO"
-```
-
-### 步骤 2：启动服务器 + 打开浏览器
-
-**如果 python3 可用**（一条命令，不要拆开）：
-
-```bash
-python3 -m http.server 8080 --directory "<project-dir>" 2>&1 &
-sleep 2
-
-# 检测 OS 并用对应方式打开浏览器——同时尝试所有方式
-open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || start http://localhost:8080 2>/dev/null || true
-
-# 确认服务在跑
-curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 2>/dev/null || echo "SERVICE_DOWN"
-```
-
-**如果 python3 不可用但 npx 可用：**
-
-```bash
-cd "<project-dir>" && npx --yes serve -p 8080 &
-sleep 3
-open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || start http://localhost:8080 2>/dev/null || true
-```
-
-**两个都不行——直接打开 HTML 文件**（简单但能跑）：
-
-```bash
-open "<project-dir>/index.html" 2>/dev/null || xdg-open "<project-dir>/index.html" 2>/dev/null || start "<project-dir>/index.html" 2>/dev/null || true
-```
-
-### 步骤 3：如果浏览器无论如何都打不开
-
-把 URL 直接发给用户：「浏览器没自动弹出来，你复制这个链接在浏览器里打开看看：**http://localhost:8080**」
-
-### 步骤 4：跟用户确认
-
-「页面写好了，你看看效果——颜色、排版、内容，哪里要改直接告诉我。」
-
-如果用户说没看到，先诊断原因再修，不要盲目换端口。
-
----
-
-## 阶段 6：变成链接
+**不要搞 localhost 预览。** 页面生成好了直接部署。用户拿到链接在浏览器里看到效果，不满意再回来改。
 
 **以下全部在后台自动完成。不对用户提任何技术词汇。**
 
-### 6.1 安装必需工具（自动）
+### 5.1 安装必需工具（自动）
 
 **检查 git：**
 ```bash
@@ -239,7 +184,7 @@ sudo dnf install gh -y
 
 如果自动安装失败 → **引导用户到官网下载页**：用 `open` / `start` / `xdg-open` 打开 `https://github.com/cli/cli/releases/latest`，告诉用户：「我需要装一个小工具，帮你打开了下载页面——选你电脑对应的版本下载安装就行。装好之后告诉我。」
 
-### 6.2 检查登录
+### 5.2 检查登录
 
 ```bash
 gh auth status 2>&1
@@ -265,17 +210,17 @@ gh auth login --web --hostname github.com
 2. 告诉用户：「帮你在浏览器里打开了页面。点最下面的『Generate token』，把生成的那串字符复制发给我就行。」
 3. 拿到 token 后回传：`echo "<token>" | gh auth login --with-token`
 
-### 6.3 获取 GitHub 用户名
+### 5.3 获取 GitHub 用户名
 
 ```bash
 gh api user --jq '.login'
 ```
 
-### 6.4 给链接起名
+### 5.4 给链接起名
 
 「给你的链接起个简单的英文名？比如你的店叫『阳光花坊』，英文就叫 `sunny-flowers`。这个会出现在最终链接里。」
 
-### 6.5 后台执行（全自动）
+### 5.5 后台执行（全自动）
 
 ```bash
 git init
@@ -296,7 +241,7 @@ git branch -M main
 git push -u origin main
 ```
 
-### 6.6 等待部署
+### 5.6 等待部署
 
 ```bash
 # 轮询检查，最多等 3 分钟
@@ -307,19 +252,19 @@ for i in $(seq 1 18); do
 done
 ```
 
-### 6.7 告诉用户
+### 5.7 告诉用户
 
-「好了！你的页面可以看了，把这个链接发给大家就行：
+「好了！你的页面可以看了：
 
 **https://[用户名].github.io/[仓库名]/**
 
-刚发可能要等一两分钟才能打开。以后想改内容，直接跟我说就行。」
+把这个链接发给别人，他们在自己的手机、电脑上都能打开。刚发可能要等一两分钟才能看到。」
 
 ---
 
-## 阶段 7：后续修改
+## 阶段 6：后续修改
 
-「以后想改内容的话，直接跟我说『帮我把那页的 XX 改成 XX』，我帮你更新，链接不变。」
+「好了，先看看效果。想改什么直接跟我说，比如『把标题改大一点』『换个颜色』，我帮你更新，链接不变。」
 
 ---
 
@@ -335,7 +280,7 @@ done
 
 ### 浏览器 OAuth 登录失败
 
-降级为 token 模式（见 6.2）。
+降级为 token 模式（见 5.2）。
 
 ### 链接打不开
 
