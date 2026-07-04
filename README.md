@@ -16,7 +16,7 @@
 对助手说：
 
 ```
-帮我安装 github.com/HankGuo/mhsg-webppt 仓库里的 idea-to-github-pages Skill
+帮我安装 github.com/HankGuo/idea-to-github-pages 仓库里的 idea-to-github-pages Skill
 ```
 
 ### 3. 说出你的想法
